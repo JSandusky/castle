@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2015, Nicolas Cannasse
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 import cdb.Data;
 using SheetData;
 
@@ -201,6 +216,12 @@ class Main extends Model {
 			moveCursor(-1, 0, e.shiftKey, e.ctrlKey);
 		case K.RIGHT:
 			moveCursor(1, 0, e.shiftKey, e.ctrlKey);
+		case K.ENTER if( inCDB ):
+			// open list
+			if( cursor.s != null && J(".cursor.t_list").click().length > 0 )
+				e.preventDefault();
+		case K.SPACE:
+			e.preventDefault(); // scrolling
 		case 'Z'.code if( e.ctrlKey && pages.curPage < 0 ):
 			if( history.length > 0 ) {
 				redo.push(curSavedData);
@@ -1322,6 +1343,9 @@ class Main extends Model {
 					return;
 				}
 			});
+			col.dblclick(function(_) {
+				newColumn(sheet.name, c);
+			});
 			cols.append(col);
 
 			var ctype = "t_" + types[Type.enumIndex(c.type)];
@@ -2155,6 +2179,7 @@ class Main extends Model {
 		var mfiles = new Menu();
 		var mnew = new MenuItem( { label : "New" } );
 		var mopen = new MenuItem( { label : "Open..." } );
+		var mrecent = new MenuItem( { label : "Recent Files" } );
 		var msave = new MenuItem( { label : "Save As..." } );
 		var mclean = new MenuItem( { label : "Clean Images" } );
 		mcompress = new MenuItem( { label : "Enable Compression", type : MenuItemType.checkbox } );
@@ -2212,14 +2237,22 @@ class Main extends Model {
 		mabout.click = function() {
 			J("#about").show();
 		};
-		mfiles.append(mnew);
-		mfiles.append(mopen);
-		mfiles.append(msave);
-		mfiles.append(mclean);
-		mfiles.append(mcompress);
-		mfiles.append(mabout);
-		mfiles.append(mexit);
+
+		var mrecents = new Menu();
+		for( file in prefs.recent ) {
+			var m = new MenuItem( { label : file } );
+			m.click = function() {
+				prefs.curFile = file;
+				load();
+			};
+			mrecents.append(m);
+		}
+		mrecent.submenu = mrecents;
+
+		for( m in [mnew, mopen, mrecent, msave, mclean, mcompress, mabout, mexit] )
+			mfiles.append(m);
 		mfile.submenu = mfiles;
+
 		menu.append(mfile);
 		menu.append(mdebug);
 		window.menu = menu;
@@ -2271,6 +2304,10 @@ class Main extends Model {
 		}
 
 		super.load(noError);
+		prefs.recent.remove(prefs.curFile);
+		prefs.recent.unshift(prefs.curFile);
+		if( prefs.recent.length > 8 ) prefs.recent.pop();
+
 		lastSave = getFileTime();
 		mcompress.checked = data.compress;
 	}
@@ -2282,6 +2319,7 @@ class Main extends Model {
 
 	public static var inst : Main;
 	static function main() {
+		untyped if( js.node.Fs.accessSync == null ) js.node.Fs.accessSync = (js.node.Fs : Dynamic).existsSync;
 		inst = new Main();
 		Reflect.setField(js.Browser.window, "_", inst);
 	}

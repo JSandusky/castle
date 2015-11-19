@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2015, Nicolas Cannasse
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 import cdb.Data;
 using SheetData;
 
@@ -5,6 +20,7 @@ typedef Prefs = {
 	windowPos : { x : Int, y : Int, w : Int, h : Int, max : Bool },
 	curFile : String,
 	curSheet : Int,
+	recent : Array<String>,
 }
 
 typedef Index = { id : String, disp : String, ico : cdb.Types.TilePos, obj : Dynamic }
@@ -33,6 +49,7 @@ class Model {
 			windowPos : { x : 50, y : 50, w : 800, h : 600, max : false },
 			curFile : null,
 			curSheet : 0,
+			recent : [],
 		};
 		existsCache = new Map();
 		loadPrefs();
@@ -471,6 +488,7 @@ class Model {
 	function loadPrefs() {
 		try {
 			prefs = haxe.Unserializer.run(js.Browser.getLocalStorage().getItem("prefs"));
+			if( prefs.recent == null ) prefs.recent = [];
 		} catch( e : Dynamic ) {
 		}
 	}
