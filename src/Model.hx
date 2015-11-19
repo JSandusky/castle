@@ -44,7 +44,9 @@ class Model {
 
 	function new() {
 		openedList = new Map();
-		r_ident = ~/^[A-Za-z_][A-Za-z0-9_]*$/;
+		// JSandusky: allow C++ pointer type and : for namespace
+		// TODO: revise regex to limit colon to 2 instances
+		r_ident = ~/^[A-Za-z_][A-Za-z0-9_\*:]*$/;
 		prefs = {
 			windowPos : { x : 50, y : 50, w : 800, h : 600, max : false },
 			curFile : null,
@@ -71,6 +73,9 @@ class Model {
 	}
 
 	public function getImageData( key : String ) : String {
+		//JSandusky: split string by colon for image data
+		//if (key.indexOf(":") >= 0)
+		//	key = key.substr(0, key.indexOf(":"));
 		return Reflect.field(imageBank, key);
 	}
 
@@ -711,8 +716,12 @@ class Model {
 
 	function typeCasesToString( t : CustomType, prefix = "" ) {
 		var arr = [];
-		for( c in t.cases ) {
-			var str = c.name;
+		for ( c in t.cases ) {
+			//JSandusky: print return type
+			var str = "";
+			if (c.returnType != "")
+				str += c.returnType + " ";
+			str += c.name;
 			if( c.args.length > 0 ) {
 				str += "( ";
 				var out = [];
@@ -771,12 +780,24 @@ class Model {
 					args.push(c);
 				}
 			}
+			var retType = "";
+			if (name.indexOf(" ") >= 0)
+			{
+				var subNames = name.split(" ");
+				subNames[0] = StringTools.trim(subNames[0]);
+				subNames[1] = StringTools.trim(subNames[1]);
+				retType = subNames[0];
+				name = subNames[1];
+			}
+			// JSandusky, better error messages
 			if( !r_ident.match(name) )
-				throw "Invalid identifier " + line;
+				throw "Invalid identifier \"" + name + "\" at " + line;
+			if (retType.length > 0 && !r_ident.match(retType))
+				throw "Invalid return type \"" +  retType + "\" at " + line;
 			if( cmap.exists(name) )
 				throw "Duplicate identifier " + name;
 			cmap.set(name, true);
-			cases.push( { name : name, args:args } );
+			cases.push( { name : name, args:args, returnType:retType } );
 		}
 		return cases;
 	}

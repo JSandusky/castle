@@ -1,0 +1,21 @@
+sys_io_File.getBytes = function(path) {
+	var o = js_node_Fs.openSync(path,"r");
+	var s = js_node_Fs.fstatSync(o);
+	var len = s.size;
+	var pos = 0;
+	var bytes = new haxe_io_Bytes(new ArrayBuffer(s.size));
+	var tmpBuf = new js_node_buffer_Buffer(s.size);
+	while(len > 0) {
+		var r = js_node_Fs.readSync(o,tmpBuf,pos,len,null);
+		pos += r;
+		len -= r;
+	}
+	js_node_Fs.closeSync(o);
+	var _g1 = 0;
+	var _g = s.size;
+	while(_g1 < _g) {
+		var i = _g1++;
+		bytes.b[i] = tmpBuf[i] & 255;
+	}
+	return bytes;
+};

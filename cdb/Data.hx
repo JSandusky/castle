@@ -130,6 +130,7 @@ typedef Sheet = {
 typedef CustomTypeCase = {
 	var name : String;
 	var args : Array<Column>;
+	var returnType : String; //JSandusky add return type for CustomTypeCase
 }
 
 typedef CustomType = {

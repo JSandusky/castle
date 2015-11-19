@@ -14,6 +14,8 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import cdb.Data;
+import sys.FileSystem;
+import sys.io.File;
 using SheetData;
 
 import js.jquery.Helper.*;
@@ -1123,24 +1125,48 @@ class Main extends Model {
 			v.html(getValue());
 			changed();
 		case TImage:
-			var i = J("<input>").attr("type", "file").css("display","none").change(function(e) {
+			var i = J("<input>").attr("type", "file").css("display", "none").change(function(e) {
 				var j = JTHIS;
 				var file : String = j.val();
 				var ext = file.split(".").pop().toLowerCase();
-				if( ext == "jpeg" ) ext = "jpg";
+				if ( ext == "jpeg" ) 
+					ext = "jpg";
 				if( ext != "png" && ext != "gif" && ext != "jpg" ) {
 					error("Unsupported image extension " + ext);
 					return;
 				}
+				error(file);
+				if (!FileSystem.exists(file))
+				{
+					error("File does not exist: " + file);
+					return;
+				}
+				try {
+					var outerBytes = sys.io.File.getBytes(file);
+				} catch (e : Dynamic)
+				{
+					error(Std.string(e));
+				}
 				var bytes = sys.io.File.getBytes(file);
+				error("Got bytes");
 				var md5 = haxe.crypto.Md5.make(bytes).toHex();
-				if( imageBank == null ) imageBank = { };
-				if( !Reflect.hasField(imageBank, md5) ) {
+				if ( imageBank == null ) 
+				{
+					error("Creating image bank");
+					imageBank = { };
+				}
+				if ( !Reflect.hasField(imageBank, md5) ) 
+				{
 					var data = "data:image/" + ext + ";base64," + new haxe.crypto.BaseCode(haxe.io.Bytes.ofString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")).encodeBytes(bytes).toString();
+					error("Setting image");
 					Reflect.setField(imageBank, md5, data);
 				}
+				else
+					error("no field for image");
 				val = md5;
-				Reflect.setField(obj, c.name, val);
+				// JSandusky: colon delimit source image file name for easier use without image database
+				// Image database still deemed useful, especially for bulk tool processing and such
+				Reflect.setField(obj, c.name, md5);
 				v.html(getValue());
 				changed();
 				j.remove();
@@ -1755,7 +1781,8 @@ class Main extends Model {
 			typesStr = nstr;
 			var errors = [];
 			var t = StringTools.trim(typesStr);
-			var r = ~/^enum[ \r\n\t]+([A-Za-z0-9_]+)[ \r\n\t]*\{([^}]*)\}/;
+			// JSandusky: allow colon and * (pointer) in enum name, to signify C++ type
+			var r = ~/^enum[ \r\n\t]+([A-Za-z0-9_\*:]+)[ \r\n\t]*\{([^}]*)\}/;
 			var oldTMap = tmap;
 			var descs = [];
 			tmap = new Map();
