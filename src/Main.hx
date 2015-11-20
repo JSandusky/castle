@@ -523,9 +523,16 @@ class Main extends Model {
 			if( v == "" )
 				'<span class="error">#MISSING</span>'
 			else {
-				var data = Reflect.field(imageBank, v);
-				if( data == null )
-					'<span class="error">#NOTFOUND($v)</span>'
+				//JSandusky: deal with colon in image name
+				var imgStr : String = v;
+				if (imgStr.indexOf(":") >= 0)
+					imgStr = imgStr.substr(0, imgStr.indexOf(":"));
+				var data = Reflect.field(imageBank, imgStr);
+				if ( data == null )
+				{
+					error (imgStr);
+					return '<span class="error">#DEADIMAGE($v)</span>';
+				}
 				else
 					'<img src="$data"/>';
 			}
@@ -1166,7 +1173,7 @@ class Main extends Model {
 				val = md5;
 				// JSandusky: colon delimit source image file name for easier use without image database
 				// Image database still deemed useful, especially for bulk tool processing and such
-				Reflect.setField(obj, c.name, md5);
+				Reflect.setField(obj, c.name, val + ":" + file);
 				v.html(getValue());
 				changed();
 				j.remove();
@@ -1766,7 +1773,7 @@ class Main extends Model {
 		if( typesStr == null ) {
 			var tl = [];
 			for( t in data.customTypes )
-				tl.push("enum " + t.name + " {\n" + typeCasesToString(t, "\t") + "\n}");
+				tl.push("class " + t.name + " {\n" + typeCasesToString(t, "\t") + "\n}");
 			typesStr = tl.join("\n\n");
 		}
 		var content = J("#content");

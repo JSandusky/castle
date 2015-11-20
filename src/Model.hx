@@ -73,9 +73,8 @@ class Model {
 	}
 
 	public function getImageData( key : String ) : String {
-		//JSandusky: split string by colon for image data
-		//if (key.indexOf(":") >= 0)
-		//	key = key.substr(0, key.indexOf(":"));
+		if (key.indexOf(":") >= 0)
+			key = key.substr(0, key.indexOf(":") - 1);
 		return Reflect.field(imageBank, key);
 	}
 
@@ -719,7 +718,7 @@ class Model {
 		for ( c in t.cases ) {
 			//JSandusky: print return type
 			var str = "";
-			if (c.returnType != "")
+			if (c.returnType != "" && c.returnType != null)
 				str += c.returnType + " ";
 			str += c.name;
 			if( c.args.length > 0 ) {
