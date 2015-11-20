@@ -133,7 +133,7 @@
 
 	</div>
 
-	<div class="box">
+	<div class="box" style="overflow: scroll; max-height:640px;">
 	<div class="tileSelect modal" style="display:none">
 		<div class="content">
 			<div class="menu">
@@ -155,14 +155,14 @@
 	</div>
 	</div>
 
-	<div id="paletteContent" style="display:none">
-		<div class="palette">
+	<div id="paletteContent" style="display:none;">
+		<div class="palette" style="width: 25%">
 			<div class="preview">
 				<canvas width="64" height="64"/>
 			</div>
-			<div class="content">
-				<canvas class="select"></canvas>
-				<canvas class="view"></canvas>
+			<div class="content" style="max-height: 400px; overflow: scroll;">
+				<canvas class="select" style="position: relative;"></canvas>
+				<canvas class="view" style="margin-right: -100%; float: left;"></canvas>
 			</div>
 			<div class="bar">
 				<div class="sel">
