@@ -14,6 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import cdb.Data;
+import js.Browser;
 import js.jquery.Helper.*;
 import js.jquery.JQuery;
 import Main.K;
@@ -651,7 +652,13 @@ class Level {
 
 	public function onResize() {
 		var win = js.node.webkit.Window.get();
-		content.find(".scroll").css("height", (win.height - 240) + "px");
+		var menuHeight = J("#menu").height();
+		var upperMenuHeight = content.find(".menu").height();
+		var subMenuHeight = content.find(".submenu").height();
+		var optWidth = content.find(".options").width();
+		content.find("#layersContainer").css("width", (win.width - optWidth - 20) + "px");
+		content.find(".scroll").css("height", (win.height - upperMenuHeight - subMenuHeight - menuHeight - 95) + "px");
+		
 	}
 
 	function setSort( j : JQuery, callb : { ref : Dynamic -> Void } ) {
@@ -1972,7 +1979,7 @@ class Level {
 						cursorImage.drawSub(i, 0, 0, i.width, i.height, x * size, y * size, size, size);
 					}
 				cursor.css( { border : "none" } );
-				if( flipMode || rotation != 0 ) {
+				if ( flipMode || rotation != 0 ) {
 					var tw = size * w, th = size * h;
 					tmpImage.setSize(tw, th);
 					var m = { a : 0., b : 0., c : 0., d : 0., x : 0., y : 0. };

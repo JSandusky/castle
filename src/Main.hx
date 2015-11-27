@@ -16,6 +16,7 @@
 import cdb.Data;
 import sys.FileSystem;
 import sys.io.File;
+import haxe.UUID;
 using SheetData;
 
 import js.jquery.Helper.*;
@@ -684,6 +685,7 @@ class Main extends Model {
 				{ n : "UPPERCASE", f : function(s:String) return s.toUpperCase() },
 				{ n : "UpperIdent", f : function(s:String) return s.substr(0,1).toUpperCase() + s.substr(1) },
 				{ n : "lowerIdent", f : function(s:String) return s.substr(0, 1).toLowerCase() + s.substr(1) },
+				{ n : "Generate GUID", f : function(s:String) return s.length == 0 ? UUID.generateDashed() : s },
 			] ) {
 				var m = new MenuItem( { label : k.n } );
 				m.click = function() {
@@ -696,7 +698,9 @@ class Main extends Model {
 						var refMap = new Map();
 						for( obj in sheet.getLines() ) {
 							var t = Reflect.field(obj, c.name);
-							if( t != null && t != "" ) {
+							//if( t != null && t != "" ) {
+								if (t == null)
+									t = "";
 								var t2 = k.f(t);
 								if( t2 == null && !c.opt ) t2 = "";
 								if( t2 == null )
@@ -706,7 +710,7 @@ class Main extends Model {
 									if( t2 != "" )
 										refMap.set(t, t2);
 								}
-							}
+							//}
 						}
 						if( c.type == TId )
 							updateRefs(sheet, refMap);
@@ -2209,7 +2213,7 @@ class Main extends Model {
 
 	function initMenu() {
 		var menu = Menu.createWindowMenu();
-		var mfile = new MenuItem({ label : "File" });
+		var mfile = new MenuItem( { label : "File" } );
 		var mfiles = new Menu();
 		var mnew = new MenuItem( { label : "New" } );
 		var mopen = new MenuItem( { label : "Open..." } );
