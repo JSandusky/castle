@@ -14,6 +14,7 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import cdb.Data;
+import js.Browser;
 import sys.FileSystem;
 import sys.io.File;
 import haxe.UUID;
@@ -1369,6 +1370,7 @@ class Main extends Model {
 		for( cindex in 0...sheet.columns.length ) {
 			var c = sheet.columns[cindex];
 			var col = J("<td>");
+			col.attr("title", c.descr);
 			col.text(c.name);
 			col.css("width", Std.int(100 / colCount) + "%");
 			if( sheet.props.displayColumn == c.name )
@@ -1905,6 +1907,7 @@ class Main extends Model {
 
 		if( ref != null ) {
 			form.addClass("edit");
+			form.find("[name=descr]").val(ref.descr);
 			form.find("[name=name]").val(ref.name);
 			form.find("[name=type]").val(ref.type.getName().substr(1).toLowerCase()).change();
 			form.find("[name=req]").prop("checked", !ref.opt);
@@ -1976,7 +1979,7 @@ class Main extends Model {
 					return;
 				}
 			} else {
-				inline function mkCol(n, t) : Column return { name : n, type : t, typeStr : null };
+				inline function mkCol(n, t) : Column return { name : n, type : t, typeStr : null, descr : null };
 				var col = mkCol(c.n, c.t);
 				s.addColumn(col);
 				if( c.n == "layers" ) {
@@ -2067,6 +2070,7 @@ class Main extends Model {
 			type : t,
 			typeStr : null,
 			name : v.name,
+			descr : v.descr
 		};
 		if( v.req != "on" ) c.opt = true;
 		if( v.display != "0" ) c.display = cast Std.parseInt(v.display);

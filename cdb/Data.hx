@@ -49,6 +49,7 @@ typedef Column = {
 	var name : String;
 	var type : ColumnType;
 	var typeStr : String;
+	var descr : String;
 	@:optional var opt : Bool;
 	@:optional var display : DisplayType;
 }

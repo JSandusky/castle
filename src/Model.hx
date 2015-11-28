@@ -355,6 +355,12 @@ class Model {
 			}
 			old.opt = c.opt;
 		}
+		
+		//if (old.descr == null)
+		//	Reflect.deleteField(old, "descr");
+		//else
+			old.descr = c.descr;
+			
 
 		if( c.display == null )
 			Reflect.deleteField(old,"display");
@@ -774,6 +780,7 @@ class Model {
 						name : id,
 						type : parseType(t),
 						typeStr : null,
+						descr : null
 					};
 					if( opt ) c.opt = true;
 					args.push(c);
